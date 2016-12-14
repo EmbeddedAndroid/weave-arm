@@ -7,7 +7,7 @@ set -e
 ################################################################################
 BASEDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 WORKDIR=$BASEDIR/.work
-ARCH=${ARCH:-arm}
+ARCH=${ARCH:-arm64}
 WEAVE_VERSION="v1.8.2"
 GOPATH=$WORKDIR
 WEAVEDIR=$WORKDIR/src/github.com/weaveworks
@@ -58,8 +58,8 @@ wka:log() {
 
 wka:clone() {
   wka:log "cloning $1"
-  git clone https://github.com/weaveworks/$1 $WEAVEDIR/$1
-  git -C $WEAVEDIR/$1 checkout $WEAVE_VERSION
+  git clone --branch $WEAVE_VERSION https://github.com/weaveworks/$1 $WEAVEDIR/$1
+  #git -c $WEAVEDIR/$1 checkout $WEAVE_VERSION
 }
 
 wka:replace_image_in_files() {
@@ -72,21 +72,21 @@ wka:replace_image_in_files() {
 wka:replace_dockerhub_user_in_files() {
   for i in $( grep -r -l -E "(DOCKERHUB_USER|DH_ORG)(=|:-|^(=$))" $WEAVEDIR ); do
     wka:log "replacing DOCKERHUB_USER in $i"
-    sed -i "s;DOCKERHUB_USER=weaveworks;DOCKERHUB_USER=kodbasen;" "${i}"
+    sed -i "s;DOCKERHUB_USER=weaveworks;DOCKERHUB_USER=forcedinductionz;" "${i}"
     sed -i "s;DH_ORG=weaveworks;DH_ORG=kodbasen;" "${i}"
-    sed -i "s;DOCKERHUB_USER:-weaveworks;DOCKERHUB_USER:-kodbasen;" "${i}"
+    sed -i "s;DOCKERHUB_USER:-weaveworks;DOCKERHUB_USER:-forcedinductionz;" "${i}"
   done
 }
 
 wka:replace_image_in_shell_files() {
   for i in $( grep -r -l -E "weaveworks/(weave|weaveexec|weavedb|weavebuild|weave-kube|weave-npc):" $WEAVEDIR ); do
     wka:log "replacing images in shell file $i"
-    sed -i "s;weaveworks/weave:;kodbasen/weave:;" "${i}"
-    sed -i "s;weaveworks/weaveexec:;kodbasen/weaveexec:;" "${i}"
-    sed -i "s;weaveworks/weavedb:;kodbasen/weavedb:;" "${i}"
-    sed -i "s;weaveworks/weavebuild:;kodbasen/weavebuild:;" "${i}"
-    sed -i "s;weaveworks/weave-kube:;kodbasen/weave-kube:;" "${i}"
-    sed -i "s;weaveworks/weave-npc:;kodbasen/weave-npc:;" "${i}"
+    sed -i "s;weaveworks/weave:;forcedinductionz/weave:;" "${i}"
+    sed -i "s;weaveworks/weaveexec:;forcedinductionz/weaveexec:;" "${i}"
+    sed -i "s;weaveworks/weavedb:;forcedinductionz/weavedb:;" "${i}"
+    sed -i "s;weaveworks/weavebuild:;forcedinductionz/weavebuild:;" "${i}"
+    sed -i "s;weaveworks/weave-kube:;forcedinductionz/weave-kube:;" "${i}"
+    sed -i "s;weaveworks/weave-npc:;forcedinducionz/weave-npc:;" "${i}"
   done
 }
 
@@ -149,16 +149,16 @@ wka:delete_images
 if [ ! -d "$WORKDIR" ]; then
   wka:init
   wka:clone "weave"
-  wka:replace_image_in_files "golang:1.5.2" "armhfbuild/golang:1.5.3"
-  wka:replace_image_in_files "weaveworks" "kodbasen"
-  wka:replace_image_in_files "alpine" "armhfbuild/alpine"
+  cp -rf Dockerfile /root/weave-arm/.work/src/github.com/weaveworks/weave/build/
+  cp -rf libpcap.a /root/weave-arm/.work/src/github.com/weaveworks/weave/build/
+  wka:replace_image_in_files "weaveworks" "forcedinductionz"
+  wka:replace_image_in_files "alpine" "project31/aarch64-alpine"
   wka:replace_dockerhub_user_in_files
   wka:replace_image_in_shell_files
   wka:replace_docker_dist_url_in_files
   wka:remove_race
   wka:fix_goarch
 fi
-#wka:sanity_check
 
 wka:log "starting building weave..."
 make -C $WEAVEDIR/weave
@@ -166,9 +166,9 @@ wka:log "done building weave"
 
 for i in weavedb weave-npc plugin weave weaveexec weave-kube; do
   wka:log "tagging and pushing $i"
-  docker tag kodbasen/$i:latest kodbasen/$i:$WEAVE_VERSION
-  docker push kodbasen/$i:latest
-  docker push kodbasen/$i:$WEAVE_VERSION
+  docker tag forcedinductionz/$i:latest forcedinductionz/$i:$WEAVE_VERSION
+  docker push forcedinductionz/$i:latest
+  docker push forcedinductionz/$i:$WEAVE_VERSION
 done
 
 cd $BASEDIR
