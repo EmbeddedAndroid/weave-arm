@@ -1,5 +1,5 @@
 # weave-arm
-Script for building a [Weave Net](https://www.weave.works/products/weave-net/) version for ARMv7 that can be used as a network provider for Kubernetes.
+Script for building a [Weave Net](https://www.weave.works/products/weave-net/) version for ARMv8 that can be used as a network provider for Kubernetes.
 
 Weave Net `v1.8.1` is not supported on ARM, that's why this script exists.
 

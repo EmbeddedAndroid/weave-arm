@@ -93,7 +93,7 @@ wka:replace_image_in_shell_files() {
 wka:replace_docker_dist_url_in_files() {
   for i in $( grep -r -l --include=Makefile "builds/Linux/x86_64" $WEAVEDIR ); do
     wka:log "replacing docker dist url in $i"
-    sed -i "s;https://get.docker.com/builds/Linux/x86_64/docker-\$(WEAVEEXEC_DOCKER_VERSION).tgz;https://github.com/kodbasen/weave-kube-arm/releases/download/v0.1/docker-1.8.2.tgz;" "${i}"
+    sed -i "s;https://get.docker.com/builds/Linux/x86_64/docker-\$(WEAVEEXEC_DOCKER_VERSION).tgz;http://people.linaro.org/~tyler.baker/docker-1.12.1.tgz;" "${i}"
     sed -i "s;curl -o;curl -Lo;" "${i}"
   done
 }
@@ -152,7 +152,7 @@ if [ ! -d "$WORKDIR" ]; then
   cp -rf Dockerfile /root/weave-arm/.work/src/github.com/weaveworks/weave/build/
   cp -rf libpcap.a /root/weave-arm/.work/src/github.com/weaveworks/weave/build/
   wka:replace_image_in_files "weaveworks" "forcedinductionz"
-  wka:replace_image_in_files "alpine" "project31/aarch64-alpine"
+  wka:replace_image_in_files "alpine" "forcedinductionz/aarch64-alpine-edge"
   wka:replace_dockerhub_user_in_files
   wka:replace_image_in_shell_files
   wka:replace_docker_dist_url_in_files
